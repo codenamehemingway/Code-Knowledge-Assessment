@@ -9,10 +9,28 @@
   </head>
   <body>
     <!-- header should contain score and timer in left and right corners respectively -->
-    <div class="quiz-container"></div>
-    <!--main questions container-->
-    <!--home or starting area with start btn and scores-->
-    <!--Scores and high score container-->
+    <div class="quiz-container">
+      <header class="header hide" id="header">
+        <div class="score-container">
+          <div>Score</div>
+          <div class="score-text" id="score-text">0</div>
+        </div>
+        <div class="timer-container">
+          <div id="time">Timer</div>
+          <div class="timer" id="timer-text"></div>
+        </div>
+      </header>
+      <!--main questions container-->
+      <div id="question-container" class="hide">
+        <h1 id="question">Question</h1>
+        <div class="choices-container">
+          <div id="choice-buttons"></div>
+          <span class="answer-message" id="answer-message"></span>
+        </div>
+      </div>
+      <!--home or starting area with start btn and scores-->
+      <!--Scores and high score container-->
+    </div>
 
     <script src="./assets/js/script.js"></script>
   </body>
