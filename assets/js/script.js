@@ -117,3 +117,190 @@ var questions = [
 var points = 0;
 var maximumQuestions = questions.length;
 var currentQuestionIndex;
+
+// Event Listeners
+
+// Starts game
+startBtn.addEventListener("click", startGame);
+
+// Opens scoreboard
+viewScoresBtn.addEventListener("click", viewScores);
+
+// Clears scoreboard
+clearScoresBtn.addEventListener("click", function () {
+  localStorage.clear();
+});
+
+// Stores username value
+userName.addEventListener("keyup", function () {
+  saveScoreBtnEl.disabled = !userName.value;
+});
+
+// Reloads game when button is clicked
+restartBtn.addEventListener("click", function () {
+  location.reload();
+});
+
+// Functions
+
+// Starts the game
+function startGame() {
+  points = 0;
+  secondsLeft = 75;
+  currentQuestionIndex = 0;
+
+  startBtn.classList.add("hide");
+  viewScoresBtn.classList.add("hide");
+
+  questionContainerEl.classList.remove("hide");
+  headerEl.classList.remove("hide");
+  saveScoreEl.classList.add("hide");
+
+  getNextQuestion();
+  setCountDown();
+  // debugger;
+}
+
+// Updates the display of the game
+function updateDisplay() {
+  scoreEl.innerText = points;
+  timerEl.innerText = secondsLeft;
+}
+
+// Sets countdown timer
+function setCountDown() {
+  var countDown = setInterval(() => {
+    if (secondsLeft > 0) {
+      secondsLeft--;
+    } else if (secondsLeft <= 0) {
+      timerEl.style.color = "red";
+      gameFinished();
+    }
+
+    updateDisplay();
+  }, 1000);
+}
+
+// Gets the next question
+function getNextQuestion() {
+  resetDisplay();
+  showQuestion(questions[currentQuestionIndex]);
+}
+
+// Show the next question on screen
+function showQuestion(x) {
+  questionEl.innerText = x.question;
+  x.choices.forEach((Element) => {
+    var button = document.createElement("button");
+    button.innerText = Element.choice;
+    button.classList.add("choice-btn");
+
+    if (Element.correct) {
+      button.dataset.correct = Element.correct;
+    }
+
+    questionEl.appendChild(button);
+    button.addEventListener("click", selectAnswer);
+  });
+}
+
+// Removes previous question from screen
+function resetDisplay() {
+  while (choiceEl.firstChild) {
+    choiceEl.removeChild(choiceEl.firstChild);
+  }
+  messageEl.textContent = " ";
+}
+
+// When the user selects a button...
+function selectAnswer(e) {
+  var selectedButton = e.target;
+  var correct = selectedButton.dataset.correct;
+
+  var correctMessage = "correct";
+  var incorrectMessage = "incorrect";
+
+  setClass(selectedButton, correct);
+
+  Array.from(choiceEl.children).forEach((button) => {
+    setClass(button, button.dataset.correct);
+  });
+
+  // If there are more questions remaining, getNextQuestion
+  if (maximumQuestions > currentQuestionIndex + 1) {
+    currentQuestionIndex++;
+    setTimeout(getNextQuestion, 50);
+  } else if (currentQuestionIndex < maximumQuestions) {
+    setTimeout(gameFinished, 50);
+  }
+
+  // changing points
+  if (selectedButton.dataset.correct) {
+    points = points + 10;
+    messageEl.textContent = correctMessage;
+    updateDisplay();
+  } else {
+    points = points - 10;
+    secondsLeft = secondsLeft - 10;
+    messageEl.textContent = incorrectMessage;
+    updateDisplay();
+  }
+}
+
+// If correct, add correct class. Else, add incorrect class.
+function setClass(element, correct) {
+  clearClass(element);
+  if (correct) {
+    element.classList.add("correct");
+  } else {
+    element.classList.add("incorrect");
+  }
+}
+
+// Remove classes
+function clearClass(element) {
+  element.classList.remove("correct");
+  element.classList.remove("incorrect");
+}
+
+// If game is finished...
+function gameFinished() {
+  questionContainerEl.classList.add("hide");
+  headerEl.classList.add("hide");
+  restartBtn.classList.remove("hide");
+  saveScoreEl.classList.remove("hide");
+
+  finalScore.innerText = "YOUR FINAL SCORE IS " + points;
+  localStorage.setItem("mostRecentScore", points);
+
+  saveScoreBtnEl.addEventListener("click", saveScore);
+}
+
+// When user clicks save score
+function saveScore(event) {
+  event.preventDefault();
+
+  var mostRecentScore = localStorage.getItem("mostRecentScore");
+  var highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+
+  var score = {
+    score: mostRecentScore,
+    name: userName.value,
+  };
+
+  highScores.push(score);
+  highScores.sort((a, b) => b.score - a.score);
+  highScores.splice(5);
+
+  localStorage.setItem("highScores", JSON.stringify(highScores));
+
+  location.reload();
+}
+
+// Displays Scoreboard
+function viewScores() {
+  var scoreContainer = document.getElementById("high-score-container");
+  scoreContainer.classList.remove("hide");
+  highScoreBtnEl.classList.add("hide");
+  startBtn.classList.add("hide");
+}
