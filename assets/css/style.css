@@ -57,6 +57,7 @@ h2 {
 .answer-message {
   font-style: italic;
   font-size: 2rem;
+  display: flex;
 }
 
 .start-btn {
